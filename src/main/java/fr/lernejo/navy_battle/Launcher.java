@@ -1,8 +1,5 @@
 package fr.lernejo.navy_battle;
 
-import com.sun.net.httpserver.HttpServer;
-import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
 
 public class Launcher {
     public static void main(String[] args) throws Exception {
@@ -19,11 +16,7 @@ public class Launcher {
             System.exit(-1);
             return;
         }
-
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/ping", new PingHandler()); // Partie 1
-        server.createContext("/api/game/start", new GameStartHandler()); // Partie 2
-        server.setExecutor(Executors.newFixedThreadPool(1)); // creates a default executor
-        server.start();
+        Server server = new Server();
+        server.start(port);
     }
 }
