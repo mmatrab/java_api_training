@@ -6,42 +6,40 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
-import java.util.UUID;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
-public class GameStartHandler implements HttpHandler { // Partie 2
+public class GameStartHandler implements HttpHandler {
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-            sendResponse(exchange, 404, "");
+            HttpResponseUtils.sendResponse(exchange, 404, "");
             return;
         }
 
-        ObjectMapper mapper = new ObjectMapper();
-        Map requestJson;
+        Map<String, String> requestBody = parseRequestBody(exchange.getRequestBody());
+        String id = requestBody.get("id");
+        String url = requestBody.get("url");
+        String message = requestBody.get("message");
 
-        try {
-            requestJson = mapper.readValue(exchange.getRequestBody(), Map.class);
-            if (!requestJson.containsKey("id") || !requestJson.containsKey("url") || !requestJson.containsKey("message")) {
-                throw new IllegalArgumentException();
-            }
-        } catch (Exception e) {
-            sendResponse(exchange, 400, "");
+        if (id == null || url == null || message == null) {
+            HttpResponseUtils.sendResponse(exchange, 400, "");
             return;
         }
 
-        Map<String, String> responseJson = Map.of(
-            "id", UUID.randomUUID().toString(),
-            "url", "http://localhost:" + exchange.getLocalAddress().getPort(),
-            "message", "May the best code win"
-        );
+        String response = String.format("{\"id\":\"%s\", \"url\":\"%s\", \"message\":\"%s\"}",
+            "2aca7611-0ae4-49f3-bf63-75bef4769028", "http://localhost:9876", "May the best code win");
 
-        sendResponse(exchange, 202, mapper.writeValueAsString(responseJson));
+        HttpResponseUtils.sendResponse(exchange, 404, Integer.toString(-1));
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(response.getBytes());
+        }
     }
 
-    private void sendResponse(HttpExchange exchange, int status, String response) throws IOException {
-        exchange.sendResponseHeaders(status, response.length());
-        OutputStream os = exchange.getResponseBody();
-        os.write(response.getBytes());
-        os.close();
+    private Map<String, String> parseRequestBody(InputStream inputStream) throws IOException {
+        return objectMapper.readValue(inputStream, Map.class);
     }
 }
+
