@@ -12,7 +12,7 @@ public class Server{
     public void start(int port) throws IOException {
         final HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/ping", new PingHandler());
-        server.createContext("/api/game/start", new GameStartHandler()); // Partie 2
+        //server.createContext("/api/game/start", new GameStartHandler()); // Partie 2
         server.setExecutor(Executors.newFixedThreadPool(1));
 
     }
