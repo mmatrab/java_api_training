@@ -1,26 +1,31 @@
 package fr.lernejo.navy_battle;
 
-import fr.lernejo.navy_battle.utils.HttpResponseUtils;
-import fr.lernejo.navy_battle.utils.Json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.UUID;
 
-public class GameStartHandler implements HttpHandler {
+public class GameStartHandler implements HttpHandler { // Partie 2
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-            HttpResponseUtils.sendResponse(exchange, 404, "");
+            sendResponse(exchange, 404, "");
             return;
         }
 
+        ObjectMapper mapper = new ObjectMapper();
+        Map requestJson;
+
         try {
-            Json requestJson = Json.fromJson(exchange.getRequestBody().toString());
-        } catch (IOException e) {
-            HttpResponseUtils.sendResponse(exchange, 400, "");
+            requestJson = mapper.readValue(exchange.getRequestBody(), Map.class);
+            if (!requestJson.containsKey("id") || !requestJson.containsKey("url") || !requestJson.containsKey("message")) {
+                throw new IllegalArgumentException();
+            }
+        } catch (Exception e) {
+            sendResponse(exchange, 400, "");
             return;
         }
 
@@ -30,7 +35,13 @@ public class GameStartHandler implements HttpHandler {
             "message", "May the best code win"
         );
 
-        ObjectMapper mapper = new ObjectMapper();
-        HttpResponseUtils.sendResponse(exchange, 202, mapper.writeValueAsString(responseJson));
+        sendResponse(exchange, 202, mapper.writeValueAsString(responseJson));
+    }
+
+    private void sendResponse(HttpExchange exchange, int status, String response) throws IOException {
+        exchange.sendResponseHeaders(status, response.length());
+        OutputStream os = exchange.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
     }
 }
