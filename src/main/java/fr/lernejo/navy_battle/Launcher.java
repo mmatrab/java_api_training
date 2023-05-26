@@ -3,14 +3,11 @@ package fr.lernejo.navy_battle;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Executors;
 
 public class Launcher {
     public static void main(String[] args) throws Exception {
@@ -28,24 +25,27 @@ public class Launcher {
             return;
         }
 
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/ping", new PingHandler());
-        server.createContext("/api/game/start", new GameStartHandler());
-        server.setExecutor(Executors.newFixedThreadPool(1)); // creates a default executor
+        Server server = new Server(port);
         server.start();
+
+        if (args.length > 1) {
+            String opponentUrl = args[1];
+            String gameId = registerGame(opponentUrl, "http://localhost:" + port);
+            startGame(opponentUrl, gameId);
+        }
     }
 
     static class PingHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange t) throws IOException {
             String response = "OK";
-            t.sendResponseHeaders(200, response.length());
-            OutputStream os = t.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
+            sendResponse(t, 200, response);
         }
     }
+
     static class GameStartHandler implements HttpHandler {
+        private static final ObjectMapper mapper = new ObjectMapper();
+
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
@@ -53,9 +53,7 @@ public class Launcher {
                 return;
             }
 
-            ObjectMapper mapper = new ObjectMapper();
-            Map requestJson;
-
+            Map<String, String> requestJson;
             try {
                 requestJson = mapper.readValue(exchange.getRequestBody(), Map.class);
                 if (!requestJson.containsKey("id") || !requestJson.containsKey("url") || !requestJson.containsKey("message")) {
@@ -74,12 +72,21 @@ public class Launcher {
 
             sendResponse(exchange, 202, mapper.writeValueAsString(responseJson));
         }
-
-        private void sendResponse(HttpExchange exchange, int status, String response) throws IOException {
-            exchange.sendResponseHeaders(status, response.length());
-            OutputStream os = exchange.getResponseBody();
+    }
+    private static void sendResponse(HttpExchange exchange, int status, String response) throws IOException {
+        exchange.sendResponseHeaders(status, response.length());
+        try (OutputStream os = exchange.getResponseBody()) {
             os.write(response.getBytes());
-            os.close();
         }
     }
+
+    private static String registerGame(String opponentUrl, String url) {
+        // TODO: Implement the logic to register the game with the opponent and return the game ID
+        return UUID.randomUUID().toString();
+    }
+
+    private static void startGame(String opponentUrl, String gameId) {
+        // TODO: Implement the logic to start the game with the opponent using the game ID
+    }
 }
+
