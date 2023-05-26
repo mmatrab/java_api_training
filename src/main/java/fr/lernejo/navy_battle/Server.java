@@ -21,8 +21,8 @@ public class Server {
     }
 
     private void initializeContexts() {
-        server.createContext("/ping", new Launcher.PingHandler());
-        server.createContext("/api/game/start", new Launcher.GameStartHandler());
+        server.createContext("/ping", new PingHandler());
+        server.createContext("/api/game/start", new GameStartHandler());
         server.createContext("/api/game/fire", new FireHandler());
     }
 
