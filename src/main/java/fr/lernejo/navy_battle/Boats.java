@@ -11,10 +11,10 @@ public class Boats {
         this.yPositions = yPositions;
     }
 
-    public enum typeBoats{
+    public enum TypeBoats{
         porteAvions(5), croiseur(4), contreTorpilleur1(3), contreTorpilleur2(3), torpilleur(2);
         public final int size;
-        typeBoats(int size){
+        TypeBoats(int size){
             this.size = size;
         }
     }

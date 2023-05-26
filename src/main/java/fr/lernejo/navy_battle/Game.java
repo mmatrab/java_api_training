@@ -11,7 +11,7 @@ public class Game {
 
     public void initGame() throws IOException {
         this.player.initSeas();
-        for(Boats.typeBoats typeBoat : Boats.typeBoats.values()){
+        for(Boats.TypeBoats typeBoat : Boats.TypeBoats.values()){
             this.player.placeBoats(typeBoat);
             displayBoards();
         }

@@ -51,7 +51,7 @@ public class Player {
         return cell;
     }
 
-    public void placeBoats(Boats.typeBoats typeBoat){
+    public void placeBoats(Boats.TypeBoats typeBoat){
         System.out.print("Boat : " + typeBoat + ", Size : " + typeBoat.size + "\n");
         System.out.println("Choose direction: horizontal(0) or vertical(1)");
         int direction = (int) Math.round(Math.random());
@@ -66,7 +66,7 @@ public class Player {
         setBoats(typeBoat, direction, xPos, yPos);
     }
 
-    public void setBoats(Boats.typeBoats typeBoat, int direction, int xPos, int yPos){
+    public void setBoats(Boats.TypeBoats typeBoat, int direction, int xPos, int yPos){
         int[] x = new int[typeBoat.size]; int[] y = new int[typeBoat.size];
         for(int i = 0; i<typeBoat.size; i++){
             if(direction == 0){x[i] = (xPos); y[i] = (yPos+i);
