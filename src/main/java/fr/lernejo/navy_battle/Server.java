@@ -7,31 +7,15 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
 public class Server {
-    private final HttpServer server;
 
-    public Server(int port) {
-        try {
-            server = HttpServer.create(new InetSocketAddress(port), 0);
-            server.setExecutor(Executors.newFixedThreadPool(1));
-        } catch (IOException e) {
-            throw new RuntimeException("Server could not be created on port " + port, e);
-        }
+    public HttpServer launch(int port, Game game) throws IOException {
+        final HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        server.createContext("/ping", new CallHandler());
+        server.createContext("/api/game/start", new PostHandler(game));
+        server.createContext("/api/game/fire", new FireHandler(game));
+        server.setExecutor(Executors.newFixedThreadPool(1));
+        System.out.print("HTTP server started on port " + port + "...\n");
 
-        initializeContexts();
-    }
-
-    private void initializeContexts() {
-        server.createContext("/ping", new PingHandler());
-        server.createContext("/api/game/start", new GameStartHandler());
-        server.createContext("/api/game/fire", new FireHandler());
-    }
-
-    public void start() {
-        server.start();
-    }
-
-    public void stop() {
-        server.stop(0);
+        return server;
     }
 }
-
