@@ -3,11 +3,12 @@ package fr.lernejo.navy_battle;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class GameStartHandler implements HttpHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -15,7 +16,7 @@ public class GameStartHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-            HttpResponseUtils.sendResponse(exchange, 404, "");
+            sendResponse(exchange, 404, "");
             return;
         }
 
@@ -25,14 +26,18 @@ public class GameStartHandler implements HttpHandler {
         String message = requestBody.get("message");
 
         if (id == null || url == null || message == null) {
-            HttpResponseUtils.sendResponse(exchange, 400, "");
+            sendResponse(exchange, 400, "");
             return;
         }
 
         String response = String.format("{\"id\":\"%s\", \"url\":\"%s\", \"message\":\"%s\"}",
-            "2aca7611-0ae4-49f3-bf63-75bef4769028", "http://localhost:9876", "May the best code win");
+            UUID.randomUUID().toString(), "http://localhost:" + exchange.getLocalAddress().getPort(), "May the best code win");
 
-        HttpResponseUtils.sendResponse(exchange, 404, Integer.toString(-1));
+        sendResponse(exchange, 202, response);
+    }
+
+    private void sendResponse(HttpExchange exchange, int status, String response) throws IOException {
+        exchange.sendResponseHeaders(status, response.length());
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(response.getBytes());
         }
@@ -42,4 +47,5 @@ public class GameStartHandler implements HttpHandler {
         return objectMapper.readValue(inputStream, Map.class);
     }
 }
+
 
