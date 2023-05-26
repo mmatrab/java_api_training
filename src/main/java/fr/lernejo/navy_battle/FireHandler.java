@@ -17,7 +17,7 @@ public class FireHandler implements HttpHandler {
     public FireHandler(Game game){
         this.game = game;
     }
-    public final String schema = "{\"$schema\":\"http://json-schema.org/schema#\",\"type\":\"object\"," +
+    private final String schema = "{\"$schema\":\"http://json-schema.org/schema#\",\"type\":\"object\"," +
         "\"properties\":{\"consequence\":{\"type\":\"string\",\"enum\":[\"miss\",\"hit\",\"sunk\"]}," +
         "\"shipLeft\":{\"type\":\"boolean\"}},\"required\":[\"consequence\",\"shipLeft\"]}";
 
